@@ -5,9 +5,10 @@ $env:Path += ';C:\Program Files\Git\cmd'
 
 New-Item -Path 'C:\deploy' -ItemType Directory -Force
 $syncScript = @'
-$repoUrl = "https://github.com/Isharohira/my-azure-site.git"
+$repoUrl = "https://github.com/<yourusername>/my-azure-site.git"
 $sitePath = "C:\inetpub\wwwroot"
 $appPoolName = "DefaultAppPool"
+git config --global --add safe.directory C:/inetpub/wwwroot
 if (!(Test-Path "$sitePath\.git")) {
   Remove-Item "$sitePath\*" -Recurse -Force -ErrorAction SilentlyContinue
   git clone $repoUrl $sitePath
@@ -20,8 +21,7 @@ Restart-WebAppPool -Name $appPoolName
 '@
 Set-Content -Path 'C:\deploy\deploy-sync.ps1' -Value $syncScript
 
+git config --global --add safe.directory C:/inetpub/wwwroot
 powershell.exe -ExecutionPolicy Bypass -File 'C:\deploy\deploy-sync.ps1'
 
-$action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument '-ExecutionPolicy Bypass -File C:\deploy\deploy-sync.ps1'
-$trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 3) -RepetitionDuration ([TimeSpan]::MaxValue)
-Register-ScheduledTask -TaskName 'CodeSync' -Action $action -Trigger $trigger -RunLevel Highest -User 'SYSTEM'
+schtasks /create /tn "CodeSync" /tr "powershell.exe -ExecutionPolicy Bypass -File C:\deploy\deploy-sync.ps1" /sc minute /mo 3 /ru SYSTEM /f
