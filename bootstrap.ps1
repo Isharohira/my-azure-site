@@ -5,7 +5,7 @@ $env:Path += ';C:\Program Files\Git\cmd'
 
 New-Item -Path 'C:\deploy' -ItemType Directory -Force
 $syncScript = @'
-$repoUrl = "https://github.com/<yourusername>/my-azure-site.git"
+$repoUrl = "https://github.com/Isharohira/my-azure-site.git"
 $sitePath = "C:\inetpub\wwwroot"
 $appPoolName = "DefaultAppPool"
 git config --global --add safe.directory C:/inetpub/wwwroot
